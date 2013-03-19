@@ -1,0 +1,23 @@
+
+<div id="content">
+
+  <div class="sixteen columns">
+    <h1>Hello {{ title }}</h1>
+  </div>
+  <div id="timeDiv" class="three columns">
+  	What happens here?
+  </div>
+    <div class="five columns">
+  	And here?
+  </div>
+
+</div>	
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect('http://localhost');
+  socket.on('time', function (data) {
+    console.log(data);
+    document.timeDiv.innerHTML = "time : "+ (data);
+  });
+</script>
