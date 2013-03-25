@@ -103,7 +103,7 @@ io.sockets.on('connection', function (socket) {
   // console.log('countdown is : ' + countdown);
   countdown--;
   oldTime = currentTime;
-  socket.broadcast.emit('updateClock', 'SERVER', countdown);
+  io.sockets.emit('updateClock', 'SERVER', countdown);
   } else if ((countdown > 0) && ((currentTime - oldTime) < 1)) {
     // console.log('not ready to countdown');
     //compensating for the fact that clock rolls at 60
@@ -115,16 +115,6 @@ io.sockets.on('connection', function (socket) {
     countdown = 30 ;
   }
 }, 1000);
-
-//   // send timer updates to client
-//   var t = setInterval(function(){
-//   if (countdown > 0){
-//   socket.broadcast.emit('updateClock', 'SERVER', countdown);
-//   countdown--;
-//   } else {
-//     countdown = 30 ;
-//   }
-// }, 1000);
 
     // echo to client they've connected
         // echo globally (all clients) that a person has connected
