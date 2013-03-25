@@ -3,7 +3,7 @@
  * GET home page.
  */
 
- var siteTitle = "Skeleton";
+var siteTitle = "Skeleton";
 
 exports.index = function(req, res){
 

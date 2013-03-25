@@ -54,44 +54,102 @@ app.configure('development', function(){
 var routes = require('./routes/index.js');
 app.get('/', routes.index);
 
+
+//All Socket Stuff Happens Here
 // usernames which are currently connected to the chat
 var usernames = {};
+var userLoginTimes = {};
+var countdown = 30;
+var oldTime = moment().format('ss');
+var currentTime = moment().format('ss');
 
 io.sockets.on('connection', function (socket) {
 
+    // when the client emits 'adduser', this listens and executes
+      // we store the username in the socket session for this client
+          // add the client's username to the global list
+          // take note of the time
+  socket.on('adduser', function(username){
+    socket.username = username;
+    usernames[username] = username;
+
+    loginTime = moment().unix();
+
+    userLoginTimes[loginTime] = loginTime;
+    console.log(username + ' logged in at : ' + loginTime);
+
   // when the client emits 'sendchat', this listens and executes
+      // we tell the client to execute 'updatechat' with 2 parameters
   socket.on('sendchat', function (data) {
-    // we tell the client to execute 'updatechat' with 2 parameters
     io.sockets.emit('updatechat', socket.username, data);
   });
 
-  // when the client emits 'adduser', this listens and executes
-  socket.on('adduser', function(username){
-    // we store the username in the socket session for this client
-    socket.username = username;
-    // add the client's username to the global list
-    usernames[username] = username;
+
+
+
+//if the difference between the currentTime and the OldTime is >= 1
+// subtract 1 from the timer
+
+    console.log('beginning timer');
+
+
+  var t = setInterval(function(){
+
+    var currentTime = moment().format('ss');
+    // console.log('the old time  is : ' + oldTime);
+    // console.log('the current second count is : ' + currentTime);
+  if ((countdown > 0) && ((currentTime - oldTime) >= 1)){
+  // console.log('subtracting 1 from the countdown');
+  // console.log('countdown is : ' + countdown);
+  countdown--;
+  oldTime = currentTime;
+  socket.broadcast.emit('updateClock', 'SERVER', countdown);
+  } else if ((countdown > 0) && ((currentTime - oldTime) < 1)) {
+    // console.log('not ready to countdown');
+    //compensating for the fact that clock rolls at 60
+    oldTime = currentTime;
+    //socket.broadcast.emit('updateClock', 'SERVER', countdown);
+  } else {
+    currentTime = moment().format('ss');
+  //  console.log('resetting countdown timer');
+    countdown = 30 ;
+  }
+}, 1000);
+
+//   // send timer updates to client
+//   var t = setInterval(function(){
+//   if (countdown > 0){
+//   socket.broadcast.emit('updateClock', 'SERVER', countdown);
+//   countdown--;
+//   } else {
+//     countdown = 30 ;
+//   }
+// }, 1000);
+
     // echo to client they've connected
+        // echo globally (all clients) that a person has connected
+            // update the list of users in chat, client-side
+
     socket.emit('updatechat', 'SERVER', 'you have connected');
-    // echo globally (all clients) that a person has connected
     socket.broadcast.emit('updatechat', 'SERVER', username + ' has connected');
-    // update the list of users in chat, client-side
     io.sockets.emit('updateusers', usernames);
   });
 
   // when the user disconnects.. perform this
-  socket.on('disconnect', function(){
     // remove the username from global usernames list
+        // update list of users in chat, client-side
+            // echo globally that this client has left
+
+  socket.on('disconnect', function(){
     delete usernames[socket.username];
-    // update list of users in chat, client-side
     io.sockets.emit('updateusers', usernames);
-    // echo globally that this client has left
     socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
   });
 });
 
 
-server.listen(process.env.PORT || 5000);
+//server.listen(process.env.PORT || 5000);
+server.listen(5000);
 
     // http.createServer(app).listen(app.get('port'), function(){
     //   console.log("Express server listening on port " + app.get('port'));

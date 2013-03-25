@@ -4,8 +4,9 @@
 	var socket = io.connect();
 
 	// on connection to server, ask for user's name with an anonymous callback
+			// call the server-side function 'adduser' and send one parameter (value of prompt)
+			
 	socket.on('connect', function(){
-		// call the server-side function 'adduser' and send one parameter (value of prompt)
 		socket.emit('adduser', prompt("What's your name?"));
 	});
 
@@ -14,6 +15,11 @@
 		$('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
 	});
 
+		socket.on('updateClock', function (username, data) {
+		document.getElementById("time").innerHTML = (data);
+	});
+
+
 	// listener, whenever the server emits 'updateusers', this updates the username list
 	socket.on('updateusers', function(data) {
 		$('#users').empty();
@@ -21,6 +27,15 @@
 			$('#users').append('<div>' + key + '</div>');
 		});
 	});
+
+	// take note of time when user joins chat
+	socket.on('countdownTime', function(data){
+
+	});
+	// compare that to server start time
+	// display this to the user
+
+
 
 	// on load of page
 	$(function(){
@@ -47,6 +62,7 @@
 	<div id="users"></div>
 </div>
 <div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+	<div id="time">Time Here</div>
 	<div id="conversation"></div>
 	<input id="data" style="width:200px;" />
 	<input type="button" id="datasend" value="send" />
