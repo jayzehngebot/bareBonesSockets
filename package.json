@@ -1,6 +1,6 @@
 {
   "name": "bareBonesExpress",
-  "version": "0.0.1-4",
+  "version": "0.0.1-5",
   "dependencies": {
     "express": "3.0.0rc5",
     "hogan-express": "0.3.3",
